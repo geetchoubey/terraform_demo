@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "CI=true mkdir -p ./dist && $npm_package_bins_lambda_zipper build -f lambdas -o ./dist/$npm_package_name-api.zip",
+    "build": "CI=true tsc -p . && mkdir -p ./dist && $npm_package_bins_lambda_zipper build -f lambdas -o ./dist/$npm_package_name-api.zip",
     "infra": "npm run \"init\" && npm run \"plan\" && npm run \"apply\"",
     "destroy": "cd ../infrastructure/ && terraform destroy -auto-approve ./",
     "deploy": "CI=true npm run build && npm run infra",
