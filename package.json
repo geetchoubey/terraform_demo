@@ -2,11 +2,27 @@
   "name": "terraform_demo",
   "version": "1.0.0",
   "description": "",
+  "bins": {
+    "lambda_zipper": "./node_modules/.bin/lambda-zipper"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "CI=true npm ci"
+    "install": "CI=true npm ci",
+    "build": "CI=true mkdir -p ./dist && $npm_package_bins_lambda_zipper build -f lambdas -o ./dist/$npm_package_name-api.zip",
+    "infra": "npm run \"init\" && npm run \"plan\" && npm run \"apply\"",
+    "destroy": "cd infrastructure/ && terraform destroy -auto-approve ./",
+    "deploy": "CI=true npm run build && npm run infra",
+    "init": "cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config \"bucket=geet-tf-state-bucket\" -backend-config \"key=terraform.tfstate\" -backend-config \"region=us-west-2\"",
+    "plan": "cd infrastructure/ && terraform plan -var-file='./terraform.tfvars' -out .terraform/service.tfplan",
+    "apply": "cd infrastructure/ && terraform apply -auto-approve .terraform/service.tfplan"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "lambda-zipper": "^0.4.1"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.12"
+  }
 }
