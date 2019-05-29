@@ -62,7 +62,7 @@ certs/
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+*/node_modules
 
 # testing
 /coverage
@@ -70,8 +70,8 @@ certs/
 /downloads
 
 # production
-/build
-/dist
+*/build
+*/dist
 
 api/build
 api/dist
@@ -96,7 +96,7 @@ yarn-debug.log*
 yarn-error.log*
 
 #Terraform
-/.terraform
+*/.terraform
 /.terraform.d
 **/*.tfstate.*
 **/*.tfstate

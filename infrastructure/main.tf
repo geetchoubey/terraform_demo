@@ -28,6 +28,7 @@ module "lambdas" {
   source = "./lambda"
   AWS_REGION = "${var.AWS_REGION}"
   IAM_LAMBDA_ARN = "${module.iam.iam_for_lambda}"
+  API_DIR = "${var.API_DIR}"
 }
 
 module "logs" {
