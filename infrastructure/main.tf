@@ -22,6 +22,7 @@ terraform {
 
 module "iam" {
   source = "./iam"
+  UI_BUCKET_NAME = "${var.UI_BUCKET_NAME}"
 }
 
 module "lambdas" {
@@ -29,6 +30,12 @@ module "lambdas" {
   AWS_REGION = "${var.AWS_REGION}"
   IAM_LAMBDA_ARN = "${module.iam.iam_for_lambda}"
   API_DIR = "${var.API_DIR}"
+}
+
+module "frontend" {
+  source = "./ui"
+  UI_BUCKET_NAME = "${var.UI_BUCKET_NAME}"
+  S3_BUCKET_POLICY = "${module.iam.s3_bucket_policy}"
 }
 
 module "logs" {

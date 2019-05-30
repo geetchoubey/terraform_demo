@@ -41,3 +41,16 @@ resource "aws_iam_role_policy" "lambda_policy" {
 }
 EOF
 }
+
+data "aws_iam_policy_document" "static_bucket_policy" {
+  statement {
+    sid = "PublicReadForGetBucketObjects"
+    effect = "Allow"
+    principals {
+      identifiers = ["*"]
+      type = "AWS"
+    }
+    actions = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::${var.UI_BUCKET_NAME}/*"]
+  }
+}
