@@ -40,7 +40,7 @@ jobs:
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
-      - run: chown root infrastructure/lambda/terraform_demo-api.zip
+      - run: chown root infrastructure/lambda/terraform_demo-api.zip && ls -l -R
       - run:
           name: Executing plan
           command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
