@@ -20,5 +20,4 @@ variable "API_DIR" {}
 variable "UI_BUCKET_NAME" {}
 
 variable "AWS_ACCESS_KEY_ID" {}
-variable "AWS_DEFAULT_REGION" {}
 variable "AWS_SECRET_ACCESS_KEY" {}
