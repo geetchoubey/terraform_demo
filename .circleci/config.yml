@@ -20,3 +20,19 @@ jobs:
       - run:
           name: Building backend code
           command: cd backend/ && npm run build
+
+  deploy:
+    working_directory: ~/tmp
+    docker:
+      - image: hashicorp/terraform
+    steps:
+      - checkout
+      - run:
+          name: Listing environment variables
+          command: printenv
+      - run:
+          name: Extracting environment variables
+          command: printenv >> infrastructure/terraform.tfvars
+      - run:
+          name: Initialising terraform
+          command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
