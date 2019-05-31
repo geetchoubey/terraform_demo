@@ -8,5 +8,5 @@ resource "aws_lambda_function" "demo_function" {
 }
 
 data "local_file" "dist_file" {
-  filename = "${var.API_DIR}"
+  filename = "${path.module}/${var.API_DIR}"
 }
