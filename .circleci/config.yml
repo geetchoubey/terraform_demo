@@ -21,6 +21,18 @@ jobs:
       - run:
           name: Building backend code
           command: cd backend/ && npm run build
+
+  deploy:
+    working_directory: ~/tmp
+    docker:
+      - image: hashicorp/terraform
+    steps:
+      - checkout
+      - attach_workspace:
+          at: infrastructure/lambda
+      - restore-cache:
+          keys:
+            - v1-infrastructure-{{ checksum "infrastructure/terraform.tfstate" }}
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
@@ -31,3 +43,16 @@ jobs:
       - run:
           name: Applying infrastructure
           command: cd infrastructure/ && terraform apply -auto-approve .terraform/service.tfplan
+      - save-cache:
+          paths:
+            - ./infrastructure/.terraform
+          key: v1-infrastructure-{{  checksum "infrastructure/terraform.tfstate" }}
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
