@@ -40,7 +40,7 @@ jobs:
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
-      - run: cd ~/tmp && ls -R
+      - run: cd ~/tmp && ls -R -l
       - run: chmod 777 -R infrastructure && terraform -v
       - run:
           name: Executing plan
