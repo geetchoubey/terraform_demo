@@ -29,7 +29,7 @@ jobs:
   deploy:
     working_directory: ~/tmp
     docker:
-      - image: hashicorp/terraform
+      - image: hashicorp/terraform:0.11.11
     steps:
       - checkout
       - attach_workspace:
@@ -41,7 +41,7 @@ jobs:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
       - run: cd ~/tmp && ls -R
-      - run: chmod 777 -R infrastructure
+      - run: chmod 777 -R infrastructure && terraform -v
       - run:
           name: Executing plan
           command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
