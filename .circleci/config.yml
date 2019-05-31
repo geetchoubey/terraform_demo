@@ -36,7 +36,7 @@ jobs:
           at: infrastructure/lambda
       - restore-cache:
           keys:
-            - v1-infrastructure-{{ checksum "infrastructure/terraform.tfstate" }}
+            - v1-infrastructure-{{ checksum "infrastructure/.terraofrm/terraform.tfstate" }}
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
@@ -50,7 +50,7 @@ jobs:
       - save-cache:
           paths:
             - ./infrastructure/.terraform
-          key: v1-infrastructure-{{  checksum "infrastructure/terraform.tfstate" }}
+          key: v1-infrastructure-{{  checksum "infrastructure/.terraofrm/terraform.tfstate" }}
 
 workflows:
   version: 2
