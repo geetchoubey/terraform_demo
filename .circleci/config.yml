@@ -21,6 +21,10 @@ jobs:
       - run:
           name: Building backend code
           command: cd backend/ && npm run build
+      - persis_to_workspace:
+          root: .
+          paths:
+            - backend/dist/terraform_demo-api.zip
 
   deploy:
     working_directory: ~/tmp
