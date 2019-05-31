@@ -10,9 +10,13 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
             - vi-dependencies-
-      - run: cd backend/ && npm ci
+      - run:
+          name: Installing modules
+          command: cd backend/ && npm ci
       - save-cache:
           paths:
             - ./backend/node_modules
           key: v1-dependencies-{{  checksum "package.json" }}
-      - run: cd backend/ && npm run build
+      - run:
+          name: Building backend code
+          command: cd backend/ && npm run build
