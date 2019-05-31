@@ -36,10 +36,6 @@ jobs:
       - restore-cache:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/terraform.tfstate" }}
-            - vi-infrastructure-
-      - run:
-          name: Destroy previous infrastructure
-          command: cd infrastructure/ && terraform destroy -auto-approve ./
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
