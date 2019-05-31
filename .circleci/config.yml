@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  - build:
+  build:
     working_directory: ~/tmp
     docker:
       - image: circleci/node:8
@@ -21,7 +21,7 @@ jobs:
           name: Building backend code
           command: cd backend/ && npm run build
 
-  - deploy:
+  deploy:
     working_directory: ~/tmp
     docker:
       - image: hashicorp/terraform
@@ -36,3 +36,9 @@ jobs:
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
+
+workflows:
+  version: 2
+  jobs:
+    - build
+    - deploy
