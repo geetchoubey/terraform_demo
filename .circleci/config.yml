@@ -20,6 +20,9 @@ jobs:
       - run:
           name: Building backend code
           command: cd backend/ && npm run build
+      - persist_to_workspace:
+          root: backend/dist
+          paths: terraform_demo-api.zip
 
   deploy:
     working_directory: ~/tmp
@@ -27,6 +30,8 @@ jobs:
       - image: hashicorp/terraform
     steps:
       - checkout
+      - attach_workspace:
+          at: backend/dist
       - restore-cache:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/terraform.tfstate" }}
