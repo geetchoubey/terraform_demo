@@ -13,8 +13,6 @@ variable "AMIs" {
 variable "STATE_BUCKET_NAME" {
   default = "geet-tf-state-bucket"
 }
-variable "PUBLIC_KEY_PATH" {}
-
 variable "API_DIR" {}
 
 variable "UI_BUCKET_NAME" {}
