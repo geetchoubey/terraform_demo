@@ -29,8 +29,21 @@ jobs:
   deploy:
     working_directory: ~/tmp
     docker:
-      - image: hashicorp/terraform:0.12.0
+      - image: alpine:3.8
     steps:
+      - run:
+          name: Setting up
+          command: apk update && apk add ca-certificates openssl wget && update-ca-certificates
+      - run:
+          name: Installing
+          command: |
+            wget https://releases.hashicorp.com/terraform/0.12.0/terraform_0.12.0_linux_amd64.zip
+            apk add --update git curl openssh make python py-pip groff less unzip
+            unzip terraform_0.12.0_linux_amd64.zip -d /bin
+            rm -f terraform_0.12.0_linux_amd64.zip
+            pip install --quiet --upgrade pip && \
+            pip install --quiet awscli==1.14.5
+
       - checkout
       - attach_workspace:
           at: infrastructure/lambda
