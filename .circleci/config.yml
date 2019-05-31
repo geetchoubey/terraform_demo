@@ -28,11 +28,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Listing environment variables
-          command: printenv
-      - run:
           name: Extracting environment variables
           command: printenv >> infrastructure/terraform.tfvars
+      - run:
+          name: Listing environment variables
+          command: cat infrastructure/terraform.tfvars
       - restore-cache:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/terraform.tfstate" }}
