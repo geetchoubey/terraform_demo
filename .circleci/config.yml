@@ -4,6 +4,7 @@ jobs:
     working_directory: ~/tmp
     docker:
       - image: circleci/node:8
+      - image: hashicorp/terraform
     steps:
       - checkout
       - restore-cache:
@@ -20,41 +21,13 @@ jobs:
       - run:
           name: Building backend code
           command: cd backend/ && npm run build
-      - persist_to_workspace:
-          root: backend/dist
-          paths: terraform_demo-api.zip
-
-  deploy:
-    working_directory: ~/tmp
-    docker:
-      - image: hashicorp/terraform
-    steps:
-      - checkout
-      - attach_workspace:
-          at: infrastructure/lambda
-      - restore-cache:
-          keys:
-            - v1-infrastructure-{{ checksum "infrastructure/terraform.tfstate" }}
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
       - run: cd ~/tmp && ls -R
       - run:
           name: Executing plan
-          command: echo "$AWS_DEFAULT_REGION" && cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
+          command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
       - run:
           name: Applying infrastructure
           command: cd infrastructure/ && terraform apply -auto-approve .terraform/service.tfplan
-      - save-cache:
-          paths:
-            - ./infrastructure/.terraform
-          key: v1-infrastructure-{{  checksum "infrastructure/terraform.tfstate" }}
-
-workflows:
-  version: 2
-  build_and_deploy:
-    jobs:
-      - build
-      - deploy:
-          requires:
-            - build
