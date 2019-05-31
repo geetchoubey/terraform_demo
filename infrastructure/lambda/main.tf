@@ -8,5 +8,5 @@ resource "aws_lambda_function" "demo_function" {
 }
 
 data "local_file" "dist_file" {
-  filename = "../instance/user_data.sh"
+  filename = "${var.API_DIR}"
 }
