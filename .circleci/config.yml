@@ -27,12 +27,6 @@ jobs:
       - image: hashicorp/terraform
     steps:
       - checkout
-      - run:
-          name: Extracting environment variables
-          command: printenv >> infrastructure/terraform.tfvars
-      - run:
-          name: Listing environment variables
-          command: cat infrastructure/terraform.tfvars
       - restore-cache:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/terraform.tfstate" }}
@@ -41,7 +35,7 @@ jobs:
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
       - run:
           name: Executing plan
-          command: cd infrastructure/ && terraform plan -var-file='./terraform.tfvars' -out .terraform/service.tfplan
+          command: echo "$AWS_DEFAULT_REGION" && cd infrastructure/ && terraform plan -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
       - run:
           name: Applying infrastructure
           command: cd infrastructure/ && terraform apply -auto-approve .terraform/service.tfplan
