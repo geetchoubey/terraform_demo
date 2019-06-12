@@ -34,14 +34,14 @@ module "iam" {
   UI_BUCKET_NAME = "${var.UI_BUCKET_NAME}"
 }
 
-module "lambdas" {
-  source = "./lambda"
-  AWS_REGION = "${var.AWS_REGION}"
-  IAM_LAMBDA_ARN = "${module.iam.iam_for_lambda}"
-  API_DIR = "${var.API_DIR}"
-  API_BUCKET_NAME = var.API_BUCKET_NAME
-  API_ARTIFACT = var.API_ARTIFACT
-}
+//module "lambdas" {
+//  source = "./lambda"
+//  AWS_REGION = "${var.AWS_REGION}"
+//  IAM_LAMBDA_ARN = "${module.iam.iam_for_lambda}"
+//  API_DIR = "${var.API_DIR}"
+//  API_BUCKET_NAME = var.API_BUCKET_NAME
+//  API_ARTIFACT = var.API_ARTIFACT
+//}
 
 //module "frontend" {
 //  source = "./ui"
