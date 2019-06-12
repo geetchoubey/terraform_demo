@@ -49,10 +49,10 @@ module "iam" {
 //  S3_BUCKET_POLICY = "${module.iam.s3_bucket_policy}"
 //}
 
-module "logs" {
-  source = "./log"
-  AWS_FUNCTINO_NAME = "${module.lambdas.lambda_function}"
-}
+//module "logs" {
+//  source = "./log"
+//  AWS_FUNCTINO_NAME = "${module.lambdas.lambda_function}"
+//}
 
 //resource "null_resource" "show_ip" {
 //  triggers {
