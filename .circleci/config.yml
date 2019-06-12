@@ -46,7 +46,7 @@ jobs:
 
       - checkout
       - attach_workspace:
-          at: infrastructure/lambda
+          at: backend/dist
       - restore-cache:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/.terraform/terraform.tfstate" }}

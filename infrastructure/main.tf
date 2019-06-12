@@ -22,6 +22,13 @@ terraform {
 //  source = "./rule"
 //}
 
+resource "aws_s3_bucket_object" "artifact" {
+  bucket = "${var.API_BUCKET_NAME}"
+  key = "${var.API_ARTIFACT}"
+  source = "${var.API_DIR}${var.API_ARTIFACT}"
+  server_side_encryption = "AES256"
+}
+
 module "iam" {
   source = "./iam"
   UI_BUCKET_NAME = "${var.UI_BUCKET_NAME}"
@@ -32,13 +39,15 @@ module "lambdas" {
   AWS_REGION = "${var.AWS_REGION}"
   IAM_LAMBDA_ARN = "${module.iam.iam_for_lambda}"
   API_DIR = "${var.API_DIR}"
+  API_BUCKET_NAME = var.API_BUCKET_NAME
+  API_ARTIFACT = var.API_ARTIFACT
 }
 
-module "frontend" {
-  source = "./ui"
-  UI_BUCKET_NAME = "${var.UI_BUCKET_NAME}"
-  S3_BUCKET_POLICY = "${module.iam.s3_bucket_policy}"
-}
+//module "frontend" {
+//  source = "./ui"
+//  UI_BUCKET_NAME = "${var.UI_BUCKET_NAME}"
+//  S3_BUCKET_POLICY = "${module.iam.s3_bucket_policy}"
+//}
 
 module "logs" {
   source = "./log"

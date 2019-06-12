@@ -14,8 +14,10 @@ variable "STATE_BUCKET_NAME" {
   default = "geet-tf-state-bucket"
 }
 variable "API_DIR" {}
+variable "API_ARTIFACT" {}
 
 variable "UI_BUCKET_NAME" {}
+variable "API_BUCKET_NAME" {}
 
 variable "AWS_ACCESS_KEY_ID" {}
 variable "AWS_SECRET_ACCESS_KEY" {}
