@@ -51,9 +51,6 @@ jobs:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/.terraform/terraform.tfstate" }}
       - run:
-          name: Destroy infrastructure
-          command: cd infrastructure/ && terraform destroy -auto-approve -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="API_BUCKET_NAME=$API_BUCKET_NAME" -var="API_ARTIFACT=$API_ARTIFACT" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY"
-      - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
       - run: cd backend/dist/ && cat terraform_demo-api.zip >> api.zip
