@@ -56,7 +56,7 @@ jobs:
       - run: cd backend/dist/ && cat terraform_demo-api.zip >> api.zip
       - run:
           name: Executing plan
-          command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="API_ARTIFACT=$API_ARTIFACT" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
+          command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="API_BUCKET_NAME=$API_BUCKET_NAME" -var="API_ARTIFACT=$API_ARTIFACT" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
       - run:
           name: Applying infrastructure
           command: cd infrastructure/ && terraform apply -auto-approve .terraform/service.tfplan
