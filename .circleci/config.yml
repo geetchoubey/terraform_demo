@@ -1,14 +1,15 @@
 version: 2
 jobs:
-  build:
+  build-api:
     working_directory: ~/tmp
     docker:
       - image: circleci/node:8
+      - image: hashicorp/terraform
     steps:
       - checkout
       - restore-cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "backend/package.json" }}
             - vi-dependencies-
       - run:
           name: Installing modules
@@ -16,7 +17,90 @@ jobs:
       - save-cache:
           paths:
             - ./backend/node_modules
-          key: v1-dependencies-{{  checksum "package.json" }}
+          key: v1-dependencies-{{  checksum "backend/package.json" }}
       - run:
           name: Building backend code
           command: cd backend/ && npm run build
+      - persist_to_workspace:
+          root: backend/dist
+          paths:
+            - terraform_demo-api.zip
+
+  build-ui:
+    working_directory: ~/tmp
+    docker:
+      - image: circleci/node:8
+      - image: hashicorp/terraform
+    steps:
+      - checkout
+      - restore-cache:
+          keys:
+            - v1-dependencies-{{ checksum "frontend/package.json" }}
+            - vi-dependencies-
+      - run:
+          name: Installing modules
+          command: cd frontend/ && npm ci
+      - save-cache:
+          paths:
+            - ./frontend/node_modules
+          key: v1-dependencies-{{  checksum "frontend/package.json" }}
+      - run:
+          name: Building frontend code
+          command: cd frontend/ && npm run build
+      - persist_to_workspace:
+          root: frontend/dist
+          paths:
+            - ui.zip
+
+  deploy:
+    working_directory: ~/tmp
+    docker:
+      - image: alpine:3.8
+    steps:
+      - run:
+          name: Setting up
+          command: apk update && apk add ca-certificates openssl wget && update-ca-certificates
+      - run:
+          name: Installing
+          command: |
+            wget https://releases.hashicorp.com/terraform/0.12.2/terraform_0.12.2_linux_amd64.zip
+            apk add --update git curl openssh make python py-pip groff less unzip
+            unzip terraform_0.12.2_linux_amd64.zip -d /bin
+            rm -f terraform_0.12.2_linux_amd64.zip
+            pip install --quiet --upgrade pip && \
+            pip install --quiet awscli==1.14.5
+
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: ls
+      - restore-cache:
+          keys:
+            - v1-infrastructure-{{ checksum "infrastructure/.terraform/terraform.tfstate" }}
+      - run:
+          name: Initialising terraform
+          command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
+      - run:
+          name: Executing plan
+          command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="UI_DIR=$UI_DIR" -var="UI_BUILD=$UI_BUILD" -var="API_DIR=$API_DIR" -var="API_BUCKET_NAME=$API_BUCKET_NAME" -var="API_ARTIFACT=$API_ARTIFACT" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
+      - run:
+          name: Applying infrastructure
+          command: cd infrastructure/ && terraform apply -auto-approve .terraform/service.tfplan
+      - run:
+          name: Deploying UI
+          command: unzip ui.zip && aws s3 sync --quiet --delete build/ s3://$UI_BUCKET_NAME
+      - save-cache:
+          paths:
+            - ./infrastructure/.terraform
+          key: v1-infrastructure-{{  checksum "infrastructure/.terraform/terraform.tfstate" }}
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build-api
+      - build-ui
+      - deploy:
+          requires:
+            - build-api
+            - build-ui
