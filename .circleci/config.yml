@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build-api:
     working_directory: ~/tmp
     docker:
       - image: circleci/node:8
@@ -26,6 +26,32 @@ jobs:
           paths:
             - terraform_demo-api.zip
 
+  build-ui:
+    working_directory: ~/tmp
+    docker:
+      - image: circleci/node:8
+      - image: hashicorp/terraform
+    steps:
+      - checkout
+      - restore-cache:
+          keys:
+            - v1-dependencies-{{ checksum "frontend/package.json" }}
+            - vi-dependencies-
+      - run:
+          name: Installing modules
+          command: cd frontend/ && npm ci
+      - save-cache:
+          paths:
+            - ./frontend/node_modules
+          key: v1-dependencies-{{  checksum "frontend/package.json" }}
+      - run:
+          name: Building frontend code
+          command: cd frontend/ && npm run build
+      - persist_to_workspace:
+          root: frontend/dist
+          paths:
+            - ui.zip
+
   deploy:
     working_directory: ~/tmp
     docker:
@@ -46,20 +72,22 @@ jobs:
 
       - checkout
       - attach_workspace:
-          at: backend/dist
+          at: .
       - restore-cache:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/.terraform/terraform.tfstate" }}
       - run:
           name: Initialising terraform
           command: cd infrastructure/ && terraform init -reconfigure -force-copy -backend=true -backend-config "bucket=geet-tf-state-bucket" -backend-config "key=terraform.tfstate" -backend-config "region=us-west-2"
-      - run: cd backend/dist/ && cat terraform_demo-api.zip >> api.zip
       - run:
           name: Executing plan
-          command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="API_DIR=$API_DIR" -var="API_BUCKET_NAME=$API_BUCKET_NAME" -var="API_ARTIFACT=$API_ARTIFACT" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
+          command: cd infrastructure/ && terraform plan -var="UI_BUCKET_NAME=$UI_BUCKET_NAME" -var="UI_DIR=$UI_DIR" -var="UI_BUILD=$UI_BUILD" -var="API_DIR=$API_DIR" -var="API_BUCKET_NAME=$API_BUCKET_NAME" -var="API_ARTIFACT=$API_ARTIFACT" -var="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -var="AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -out .terraform/service.tfplan
       - run:
           name: Applying infrastructure
           command: cd infrastructure/ && terraform apply -auto-approve .terraform/service.tfplan
+      - run:
+          name: Deploying UI
+          command: unzip ui.zip && aws s3 sync --quiet --delete build/ s3://$UI_BUCKET_NAME
       - save-cache:
           paths:
             - ./infrastructure/.terraform
@@ -69,7 +97,9 @@ workflows:
   version: 2
   build_and_deploy:
     jobs:
-      - build
+      - build-api
+      - build-ui
       - deploy:
           requires:
-            - build
+            - build-api
+            - build-ui

@@ -14,7 +14,9 @@ variable "STATE_BUCKET_NAME" {
   default = "geet-tf-state-bucket"
 }
 variable "API_DIR" {}
+variable "UI_DIR" {}
 variable "API_ARTIFACT" {}
+variable "UI_BUILD" {}
 
 variable "UI_BUCKET_NAME" {}
 variable "API_BUCKET_NAME" {}
