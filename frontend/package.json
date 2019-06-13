@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bins": {
+    "zipper": "./node_modules/.bin/bestzip"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "CI=true next build && next export -o build && mkdir -p ./dist && bestzip dist/ui.zip build",
+    "build": "CI=true next build && next export -o build && mkdir -p ./dist && $npm_package_bins_zipper dist/ui.zip build",
     "start": "next",
     "unzip": "unzip dist/ui.zip"
   },
