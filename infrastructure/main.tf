@@ -35,13 +35,13 @@ module "iam" {
 }
 
 module "lambdas" {
-  depends_on =["aws_s3_bucket_object.artifact"]
   source = "./lambda"
   AWS_REGION = var.AWS_REGION
   IAM_LAMBDA_ARN = module.iam.iam_for_lambda
   API_DIR = var.API_DIR
   API_BUCKET_NAME = var.API_BUCKET_NAME
   API_ARTIFACT = var.API_ARTIFACT
+  ARTIFACT_ID = aws_s3_bucket_object.artifact.id
 }
 
 module "frontend" {
