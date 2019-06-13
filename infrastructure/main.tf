@@ -41,7 +41,7 @@ module "lambdas" {
   API_DIR = var.API_DIR
   API_BUCKET_NAME = var.API_BUCKET_NAME
   API_ARTIFACT = var.API_ARTIFACT
-  ARTIFACT_ID = aws_s3_bucket_object.artifact.id
+  ARTIFACT_KEY = aws_s3_bucket_object.artifact.key
 }
 
 module "frontend" {
