@@ -73,6 +73,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - run: ls
       - restore-cache:
           keys:
             - v1-infrastructure-{{ checksum "infrastructure/.terraform/terraform.tfstate" }}
